@@ -584,6 +584,12 @@ def cli() -> None:
     default=128,
 )
 @click.option(
+    "--chunk_size_threshold",
+    type=int,
+    help="Threshold above which chunking applies. Default is 384.",
+    default=384,
+)
+@click.option(
     "--output_format",
     type=click.Choice(["pdb", "mmcif"]),
     help="The output format to use for the predictions. Default is mmcif.",
@@ -645,6 +651,7 @@ def predict(
     chunk_size_transition_msa: int = 32,
     chunk_size_outer_product: int = 4,
     chunk_size_tri_attn: int = 128,
+    chunk_size_threshold: int = 384,
     output_format: Literal["pdb", "mmcif"] = "mmcif",
     num_workers: int = 2,
     override: bool = False,
@@ -751,7 +758,8 @@ def predict(
         "chunk_size_transition_z": chunk_size_transition_z,
         "chunk_size_transition_msa": chunk_size_transition_msa,
         "chunk_size_outer_product": chunk_size_outer_product,
-        "chunk_size_tri_attn": chunk_size_tri_attn
+        "chunk_size_tri_attn": chunk_size_tri_attn,
+        "chunk_size_threshold": chunk_size_threshold
     }
     diffusion_params = BoltzDiffusionParams()
     diffusion_params.step_scale = step_scale

@@ -210,7 +210,8 @@ class MSAModule(nn.Module):
         chunk_size_transition_z: int = 64,
         chunk_size_transition_msa: int = 32,
         chunk_size_outer_product: int = 4,
-        chunk_size_tri_attn: int = 128
+        chunk_size_tri_attn: int = 128,
+        chunk_size_threshold: int = 384,
     ) -> Tensor:
         """Perform the forward pass.
 
@@ -231,7 +232,7 @@ class MSAModule(nn.Module):
         """
         # Set chunk sizes
         if not self.training:
-            if z.shape[1] > const.chunk_size_threshold:
+            if z.shape[1] > chunk_size_threshold:
                 chunk_heads_pwa = True
                 chunk_size_transition_z = chunk_size_transition_z
                 chunk_size_transition_msa = chunk_size_transition_msa
@@ -513,6 +514,7 @@ class PairformerModule(nn.Module):
         pair_mask: Tensor,
         chunk_size_transition_z: int = None,
         chunk_size_tri_attn: int = 128,
+        chunk_size_threshold: int = 384,
     ) -> Tuple[Tensor, Tensor]:
         """Perform the forward pass.
 
@@ -535,7 +537,7 @@ class PairformerModule(nn.Module):
 
         """
         if not self.training:
-            if z.shape[1] > const.chunk_size_threshold:
+            if z.shape[1] > chunk_size_threshold:
                 chunk_size_tri_attn = chunk_size_tri_attn
                 chunk_size_transition_z = chunk_size_transition_z
             else:
