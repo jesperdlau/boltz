@@ -666,6 +666,10 @@ def predict(
     if accelerator == "cpu":
         msg = "Running on CPU, this will be slow. Consider using a GPU."
         click.echo(msg)
+        
+    # Set environment variable to avoid fragmentation of GPU memory
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+    # TODO: Maybe redundant since we set in the submit script. However, might be good to have here. 
 
     # Set no grad
     torch.set_grad_enabled(False)
