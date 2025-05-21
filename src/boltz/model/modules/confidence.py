@@ -195,6 +195,7 @@ class ConfidenceModule(nn.Module):
         chunk_size_transition_msa: int = None,
         chunk_size_outer_product: int = None,
         chunk_size_tri_attn: int = None,
+        chunk_size_threshold: int = None,
     ):
         if run_sequentially and multiplicity > 1:
             assert z.shape[0] == 1, "Not supported with batch size > 1"
@@ -305,12 +306,14 @@ class ConfidenceModule(nn.Module):
                     chunk_size_transition_z=chunk_size_transition_z, 
                     chunk_size_transition_msa=chunk_size_transition_msa, 
                     chunk_size_outer_product=chunk_size_outer_product, 
-                    chunk_size_tri_attn=chunk_size_tri_attn                                    
+                    chunk_size_tri_attn=chunk_size_tri_attn,
+                    chunk_size_threshold=chunk_size_threshold,
                 )
 
             s, z = self.pairformer_module(s, z, mask=mask, pair_mask=pair_mask, 
                         chunk_size_transition_z=chunk_size_transition_z, 
-                        chunk_size_tri_attn=chunk_size_tri_attn)
+                        chunk_size_tri_attn=chunk_size_tri_attn,
+                        chunk_size_threshold=chunk_size_threshold)
 
             s, z = self.final_s_norm(s), self.final_z_norm(z)
 

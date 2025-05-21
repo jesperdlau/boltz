@@ -270,6 +270,7 @@ class Boltz1(LightningModule):
         chunk_size_transition_msa: int = None,
         chunk_size_outer_product: int = None,
         chunk_size_tri_attn: int = None,
+        chunk_size_threshold: int = None,
     ) -> dict[str, Tensor]:
         dict_out = {}
 
@@ -317,7 +318,8 @@ class Boltz1(LightningModule):
                                 chunk_size_transition_z=chunk_size_transition_z, 
                                 chunk_size_transition_msa=chunk_size_transition_msa, 
                                 chunk_size_outer_product=chunk_size_outer_product, 
-                                chunk_size_tri_attn=chunk_size_tri_attn
+                                chunk_size_tri_attn=chunk_size_tri_attn,
+                                chunk_size_threshold=chunk_size_threshold,
                             )
 
                     # Revert to uncompiled version for validation
@@ -328,8 +330,9 @@ class Boltz1(LightningModule):
 
                     s, z = pairformer_module(s, z, mask=mask, pair_mask=pair_mask, 
                                             chunk_size_transition_z=chunk_size_transition_z, 
-                                            chunk_size_tri_attn=chunk_size_tri_attn)
-
+                                            chunk_size_tri_attn=chunk_size_tri_attn,
+                                            chunk_size_threshold=chunk_size_threshold)
+                    
             pdistogram = self.distogram_module(z)
             dict_out = {"pdistogram": pdistogram}
 
@@ -381,7 +384,8 @@ class Boltz1(LightningModule):
                     chunk_size_transition_z=chunk_size_transition_z,
                     chunk_size_transition_msa=chunk_size_transition_msa,
                     chunk_size_outer_product=chunk_size_outer_product,
-                    chunk_size_tri_attn=chunk_size_tri_attn
+                    chunk_size_tri_attn=chunk_size_tri_attn,
+                    chunk_size_threshold=chunk_size_threshold,
                 )
             )
         if self.confidence_prediction and self.confidence_module.use_s_diffusion:
@@ -1150,7 +1154,8 @@ class Boltz1(LightningModule):
                 chunk_size_transition_z=self.predict_args["chunk_size_transition_z"],
                 chunk_size_transition_msa=self.predict_args["chunk_size_transition_msa"],
                 chunk_size_outer_product=self.predict_args["chunk_size_outer_product"],
-                chunk_size_tri_attn=self.predict_args["chunk_size_tri_attn"],            
+                chunk_size_tri_attn=self.predict_args["chunk_size_tri_attn"],
+                chunk_size_threshold=self.predict_args["chunk_size_threshold"],
             )
             pred_dict = {"exception": False}
             pred_dict["masks"] = batch["atom_pad_mask"]
