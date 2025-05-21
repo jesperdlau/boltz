@@ -37,6 +37,18 @@ from boltz.model.modules.utils import ExponentialMovingAverage
 from boltz.model.optim.scheduler import AlphaFoldLRScheduler
 
 
+def print_gpu_memory_usage():
+    if torch.cuda.is_available():
+        print(f"Allocated memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
+        print(f"Reserved memory: {torch.cuda.memory_reserved() / 1024**2:.2f} MB")
+    else:
+        print("CUDA is not available.")
+
+# enable memory history, which will
+# add tracebacks and event history to snapshots
+torch.cuda.memory._record_memory_history()
+        
+
 class Boltz1(LightningModule):
     """Boltz1 model."""
 
@@ -364,6 +376,9 @@ class Boltz1(LightningModule):
                     steering_args=self.steering_args,
                 )
             )
+            
+        print("GPU memory usage after structure module sample:")
+        print_gpu_memory_usage()
 
         if self.confidence_prediction:
             dict_out.update(
@@ -1192,9 +1207,17 @@ class Boltz1(LightningModule):
 
         except RuntimeError as e:  # catch out of memory exceptions
             if "out of memory" in str(e):
-                print("| WARNING: ran out of memory, skipping batch")
+                print("\n| WARNING: ran out of memory, skipping batch")
+                print_gpu_memory_usage()
+                
+                # Generate a random name for the snapshot
+                memory_dump_name = f"cuda_memory_snapshot_after_oom_{str(random.randint(0, 100000))}.pickle"
+                torch.cuda.memory._dump_snapshot(memory_dump_name)
+                print(f"Torch memory dump saved to {memory_dump_name}")
+                
                 torch.cuda.empty_cache()
                 gc.collect()
+                print(f"Error: \n{e}")
                 return {"exception": True}
             else:
                 raise
