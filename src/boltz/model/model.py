@@ -1,5 +1,6 @@
 import gc
 import random
+import string
 from typing import Any, Optional
 
 import torch
@@ -1211,7 +1212,8 @@ class Boltz1(LightningModule):
                 print_gpu_memory_usage()
                 
                 # Generate a random name for the snapshot
-                memory_dump_name = f"cuda_memory_snapshot_after_oom_{str(random.randint(0, 100000))}.pickle"
+                random_hash = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+                memory_dump_name = f"cuda_memory_snapshot_after_oom_{random_hash}.pickle"
                 torch.cuda.memory._dump_snapshot(memory_dump_name)
                 print(f"Torch memory dump saved to {memory_dump_name}")
                 

@@ -819,6 +819,7 @@ def predict(
         )
 
     if use_cuda_bfloat16:
+        print("Running in bfloat16 mode. This will reduce memory usage and allow prediction of larger structures. ")
         with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
             compute_predictions()
     else:
